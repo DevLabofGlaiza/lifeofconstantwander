@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taiwan Solo Travel Blog | lifeofconstantwonder</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    :root {
+      --bg: #0f1216;
+      --bg-soft: #151a20;
+      --panel: rgba(255, 255, 255, 0.06);
+      --line: rgba(255, 255, 255, 0.12);
+      --text: #f5f3ef;
+      --muted: rgba(245, 243, 239, 0.78);
+      --soft: rgba(245, 243, 239, 0.62);
+      --accent: #70886b;
+      --accent-hover: #829b7c;
+      --max-width: 1180px;
+      --radius: 28px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+    }
+
+    .container {
+      width: min(calc(100% - 40px), var(--max-width));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 100vh;
+      position: relative;
+      background:
+        linear-gradient(rgba(10, 13, 16, 0.5), rgba(10, 13, 16, 0.72)),
+        url("images/taiwancard1.jpg") center/cover no-repeat;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(8, 10, 12, 0.15),
+        rgba(8, 10, 12, 0.1),
+        rgba(8, 10, 12, 0.84)
+      );
+      pointer-events: none;
+    }
+
+    .navbar {
+      position: relative;
+      z-index: 2;
+      padding: 24px 0;
+    }
+
+    .navbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(112, 136, 107, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 18px;
+    }
+
+    .brand-title {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 2rem;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      flex-wrap: wrap;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.95rem;
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      min-height: calc(100vh - 92px);
+      display: flex;
+      align-items: center;
+      padding: 60px 0 90px;
+    }
+
+    .hero-copy {
+      max-width: 850px;
+    }
+
+    .eyebrow {
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.28em;
+      color: rgba(225, 237, 221, 0.84);
+      margin-bottom: 18px;
+    }
+
+    .quote {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 1.8rem;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.72);
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(3.6rem, 8vw, 6.4rem);
+      line-height: 0.96;
+      font-weight: 600;
+      max-width: 820px;
+    }
+
+    .hero-copy p {
+      max-width: 760px;
+      color: var(--muted);
+      font-size: clamp(1rem, 2vw, 1.18rem);
+      margin-top: 24px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 36px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 24px;
+      border-radius: 999px;
+      font-weight: 500;
+      transition: 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-outline {
+      border-color: rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    main {
+      padding-bottom: 96px;
+    }
+
+    section {
+      padding: 20px 0;
+    }
+
+    .section-label {
+      color: rgba(225, 237, 221, 0.84);
+      text-transform: uppercase;
+      letter-spacing: 0.26em;
+      font-size: 0.78rem;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(1.7rem, 2.8vw, 2.9rem);
+      line-height: 1.08;
+      margin-bottom: 20px;
+    }
+
+    .lead {
+      max-width: 820px;
+      color: var(--muted);
+      font-size: 1.03rem;
+      margin-bottom: 32px;
+    }
+
+    .overview-grid,
+    .itinerary-list,
+    .tips-grid {
+      margin-top: 32px;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .overview-card,
+    .itinerary-day,
+    .tip-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      backdrop-filter: blur(8px);
+    }
+
+    .overview-card {
+      padding: 22px;
+    }
+
+    .overview-card span {
+      display: block;
+      color: var(--soft);
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 10px;
+    }
+
+    .overview-card strong {
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .blog-story {
+      margin-top: 28px;
+      max-width: 1500px;
+      display: flex;
+      flex-direction: column;
+      gap: 56px;
+    }
+
+    .blog-story > .section-title {
+      margin: 0;
+    }
+
+    .story-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .story-text {
+      width: 100%;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 30px;
+      color: var(--muted);
+      text-align: justify;
+    }
+
+    .story-text p + p {
+      margin-top: 14px;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      width: 100%;
+    }
+
+    .story-photo {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .story-photo.one { background-image: url("images/taiwanstory1.jpg"); }
+    .story-photo.two { background-image: url("images/busstation.jpg"); }
+    .story-photo.three { background-image: url("images/taipeiinn.jpg"); }
+    .story-photo.four { background-image: url("images/sunyatsen.jpg"); }
+    .story-photo.five { background-image: url("images/taipei2.jpg"); }
+    .story-photo.six { background-image: url("images/ximending.jpg"); }
+    .story-photo.seven { background-image: url("images/miyahara.jpg"); }
+    .story-photo.eight { background-image: url("images/museum.jpg"); }
+    .story-photo.nine { background-image: url("images/animated.jpg"); }
+    .story-photo.ten { background-image: url("images/shifenlantern.jpg"); }
+    .story-photo.eleven { background-image: url("images/shifenwaterfall.jpg"); }
+    .story-photo.twelve { background-image: url("images/jiufen.jpg"); }
+    .story-photo.thirteen { background-image: url("images/redhouse.jpg"); }
+    .story-photo.fourteen { background-image: url("images/bopilao.jpg"); }
+    .story-photo.fifteen { background-image: url("images/lungshan.jpg"); }
+    .story-photo.sixteen { background-image: url("images/beitou1.jpg"); }
+    .story-photo.seventeen { background-image: url("images/beitou2.jpg"); }
+    .story-photo.eighteen { background-image: url("images/beitou3.jpg"); }
+    .story-photo.nineteen { background-image: url("images/capybara1.jpg"); }
+    .story-photo.twenty { background-image: url("images/capybara2.jpg"); }
+    .story-photo.twentyone { background-image: url("images/capybara3.jpg"); }
+
+    .itinerary-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .itinerary-day {
+      padding: 28px;
+    }
+
+    .day-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .day-title {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 1.8rem;
+      line-height: 1.1;
+    }
+
+    .day-content {
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .day-content strong {
+      color: white;
+    }
+
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .tip-card {
+      padding: 28px;
+    }
+
+    .tip-card h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 2rem;
+      margin-bottom: 18px;
+    }
+
+    .tip-list {
+      display: grid;
+      gap: 12px;
+      color: var(--muted);
+    }
+
+    .tip-list div {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .map-section {
+      padding: 84px 0 0;
+    }
+
+    .map-shell {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-top: 30px;
+    }
+
+    #taiwanMap {
+      width: 100%;
+      height: 620px;
+    }
+
+    .leaflet-container {
+      font-family: "Inter", sans-serif;
+    }
+
+    .custom-popup .leaflet-popup-content-wrapper {
+      border-radius: 16px;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+    }
+
+    .custom-popup .leaflet-popup-content {
+      margin: 0;
+      width: 220px !important;
+    }
+
+    .popup-card {
+      background: #fff;
+      color: #1f2937;
+      text-align: center;
+    }
+
+    .popup-card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .popup-card h3 {
+      margin: 0;
+      padding: 16px 14px;
+      font-size: 1.9rem;
+      font-family: "Cormorant Garamond", serif;
+      color: #2c6db2;
+    }
+
+    .leaflet-popup-tip {
+      background: #fff;
+    }
+
+    footer {
+      padding: 56px 0 36px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 1024px) {
+      .overview-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .tips-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .container {
+        width: min(calc(100% - 28px), var(--max-width));
+      }
+
+      section {
+        padding: 72px 0;
+      }
+
+      .overview-grid,
+      .photo-grid,
+      .itinerary-list,
+      .tips-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .blog-story {
+        gap: 44px;
+      }
+
+      .story-text,
+      .itinerary-day,
+      .tip-card,
+      .overview-card {
+        padding: 22px;
+      }
+
+      .nav-links {
+        gap: 14px 18px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .day-title,
+      .tip-card h3 {
+        font-size: 1.6rem;
+      }
+
+      #taiwanMap {
+        height: 480px;
+      }
+
+      .custom-popup .leaflet-popup-content {
+        width: 180px !important;
+      }
+
+      .popup-card img {
+        height: 95px;
+      }
+
+      .popup-card h3 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <nav class="navbar">
+      <div class="container navbar-inner">
+        <a href="taiwan.html" class="brand">
+          <div class="brand-icon">✦</div>
+          <div class="brand-title">LifeofConstantWonder</div>
+        </a>
+
+        <div class="nav-links">
+          <a href="#story">Itinerary</a>
+          <a href="#itinerary">Things to know</a>
+          <a href="#dos-donts">Dos &amp; Don’ts</a>
+          <a href="#guide-map">Guide Map</a>
+          <a href="lifeofconstantwander.html">Back Home</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="hero-content">
+      <div class="container hero-copy">
+        <div class="quote">“My first solo international trip started in the rain and somehow still felt magical.”</div>
+        <div class="eyebrow">Taiwan solo travel blog</div>
+        <h1>Travel Solo in Taiwan</h1>
+        <p>
+          Hostels, rainy streets, night markets, metro rides, Taipei 101, and that strange mix of nerves and excitement that only your first solo trip can give you.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#story" class="btn btn-primary">View the itinerary</a>
+          <a href="#dos-donts" class="btn btn-outline">Read the dos &amp; don’ts</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="container">
+        <div class="section-label">Taiwan at a glance</div>
+        <h2 class="section-title">A beautiful first solo destination</h2>
+        <p class="lead">
+          Taiwan felt like the perfect place for a first solo international trip: easy to move around, full of food, packed with character, and exciting without feeling overwhelming. It had city energy, mountain views, cozy cafés, and moments where getting slightly lost was part of the fun.
+        </p>
+
+        <div class="overview-grid">
+          <div class="overview-card">
+            <span>Trip style</span>
+            <strong>Solo travel + city exploration</strong>
+          </div>
+          <div class="overview-card">
+            <span>Best for</span>
+            <strong>First-time solo travelers</strong>
+          </div>
+          <div class="overview-card">
+            <span>Main vibe</span>
+            <strong>Rainy, lively, safe, memorable</strong>
+          </div>
+          <div class="overview-card">
+            <span>Highlight</span>
+            <strong>Taipei 101 and night markets</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="story">
+      <div class="container">
+        <div class="section-label">Itinerary</div>
+        <h2 class="section-title">Day 0: Arrival at Taoyuan Airport</h2>
+
+        <div class="blog-story">
+          <div class="story-block">
+            <div class="story-text">
+              <p>
+                I arrived at Taoyuan Airport at around <b>3 AM</b>, marking the start of my Taiwan trip. Although the airport is located quite far from Taipei city center, transportation was still convenient even at that hour, with buses available just outside the terminal. For my first night, I stayed at <b>📍Taipei Inn</b>, a practical choice near Taipei Bus Station, which made the late-night arrival much easier.
+              </p>
+              <p>
+                The first moments felt surreal. I was nervous, excited, and very aware that I was doing this without the comfort of familiar people around me. But that was also what made it so special.
+              </p>
+            </div>
+            <div class="photo-grid">
+              <div class="story-photo one"></div>
+              <div class="story-photo two"></div>
+              <div class="story-photo three"></div>
+            </div>
+          </div>
+
+          <h2 class="section-title">Day 1: Taipei 101, Sun Yat-Sen Memorial Hall, and Ximending Walking District</h2>
+          <div class="story-block">
+            <div class="story-text">
+              <p>
+                I checked into <b>📍Wow Hostel</b>, which turned out to be an excellent budget stay. It is in the city center and near the metro which made the experience even better. My first stop was Sun Yat-Sen Memorial Hall, and although my iPhone Maps left me slightly confused along the way, spotting Taipei 101 in the distance immediately made it worthwhile.
+              </p>
+              <p>
+                After exploring the memorial hall, I made my way to Taipei 101 for a panoramic city view. As a budget traveler, I chose to visit Simple Kaffa on the 88th floor instead of paying for the full observatory, and it was a great alternative. In the evening, I headed to Ximending Walking District, where I enjoyed the lively atmosphere, street performances, food stalls, and countless shops. It was the perfect introduction to Taipei’s energy and charm.
+              </p>
+            </div>
+            <div class="photo-grid">
+              <div class="story-photo four"></div>
+              <div class="story-photo five"></div>
+              <div class="story-photo six"></div>
+            </div>
+          </div>
+
+          <h2 class="section-title">Day 2: DIY Taichung, Miyahara, National Taiwan Museum of Comics, and Painted Animation Lane</h2>
+          <div class="story-block">
+            <div class="story-text">
+              <p>
+                On my second day, I headed to <b>Taichung</b> on my own, taking the <b>Taiwan High Speed Rail</b> from <b>Taipei Main Station</b>. I booked the one-way ticket through <b>Klook</b> for <b>PHP 950</b>, and the trip itself already felt like part of the adventure. My first stop was <b>Miyahara</b>, a famous ice cream shop known for its beautiful, Harry Potter-like interior. It was once a Japanese eye clinic built in 1927, which made the place feel even more unique.
+              </p>
+              <p>
+                After that, I spent the day simply wandering around Taichung. I visited the <b>National Taiwan Museum of Comics</b>, which was full of comic exhibits, archives, and creative spaces, then ended the day at <b>Painted Animation Lane</b>, a colorful alley filled with cartoon and anime murals. For someone who enjoys exploring at their own pace, Taichung felt fun, easy, and full of little surprises.
+              </p>
+            </div>
+            <div class="photo-grid">
+              <div class="story-photo seven"></div>
+              <div class="story-photo eight"></div>
+              <div class="story-photo nine"></div>
+            </div>
+          </div>
+
+          <h2 class="section-title">Day 3: Shifen, Shifen Waterfall, and Jiufen Old Street Night Tour</h2>
+          <div class="story-block">
+            <div class="story-text">
+              <p>
+                This was one of the highlights of my solo trip to Taiwan. To make things easier, I booked the tour through <b>KKday</b> and met the group at <b>Taipei Main Station</b>. Our first stop was <b>Shifen</b>, a charming old town known for its railway tracks, nostalgic streets, and sky lantern experience. I bought my lantern through Klook for <b>PHP 430</b>, and releasing it felt like such a special moment.
+              </p>
+              <p>
+                Next, we visited Shifen <b>Waterfall</b>, often called <b>Taiwan’s Niagara Falls</b> because of its wide and dramatic view. The final stop was <b>Jiufen</b>, which felt magical, especially at night. With its narrow alleyways, lantern-lit streets, free food tastings, and beautiful coastal view, it truly felt surreal. Many people say it looks like a scene from a <b>Ghibli movie</b>, and honestly, I could see why. As a budget traveler, I kept it simple and just enjoyed a cup of black tea at a café while taking in Jiufen’s dreamy atmosphere.
+              </p>
+            </div>
+            <div class="photo-grid">
+              <div class="story-photo ten"></div>
+              <div class="story-photo eleven"></div>
+              <div class="story-photo twelve"></div>
+            </div>
+          </div>
+
+          <h2 class="section-title">Day 4: The Red House, Bopiliao Historical Block, and Lungshan Temple</h2>
+          <div class="story-block">
+            <div class="story-text">
+              <p>
+                Another rainy day in Taiwan made me slow down and keep things simple. I started at <b>The Red House</b>, one of Taipei’s well-known cultural and commercial spots, before heading to <b>Bopiliao Historical Block</b>, a preserved street that beautifully shows off old red-brick architecture from the Qing Dynasty. It felt like a quiet step back in time and was an easy side trip since it was close to my next stop.
+              </p>
+              <p>
+                I ended the day at <b>Lungshan Temple</b>, one of the most famous temples in Taipei. Dedicated mainly to Guanyin, the Goddess of Mercy, along with other folk deities, it had a calm and spiritual atmosphere that felt even more special with the light rain outside. It was a simple day, but one that gave me a deeper look into Taipei’s history and culture.
+              </p>
+            </div>
+            <div class="photo-grid">
+              <div class="story-photo thirteen"></div>
+              <div class="story-photo fourteen"></div>
+              <div class="story-photo fifteen"></div>
+            </div>
+          </div>
+
+          <h2 class="section-title">Day 5: Beitou Hot Spring Museum, Thermal Valley, and Private Hot Spring</h2>
+          <div class="story-block">
+            <div class="story-text">
+              <p>
+                As the rain kept pouring, I looked for something to do near <b>Ximending</b> and decided to visit <b>Beitou Hot Springs</b>. It turned out to be such a good choice, especially for a convenient half-day trip from Taipei. Easily accessible by <b>MRT</b>, Beitou offers a mix of sulfuric hot springs, scenic views, and a bit of history, along with photogenic spots like <b>Geothermal Valley</b>.
+              </p>
+              <p>
+                What made it even more memorable was that it was my <b>first time experiencing a real private hot spring</b>. I honestly found it so cool and relaxing. Between the peaceful atmosphere and the unique experience, Beitou felt like the perfect escape from the rainy city.
+              </p>
+            </div>
+            <div class="photo-grid">
+              <div class="story-photo sixteen"></div>
+              <div class="story-photo seventeen"></div>
+              <div class="story-photo eighteen"></div>
+            </div>
+          </div>
+
+          <h2 class="section-title">Day 6: Capybara Knight</h2>
+          <div class="story-block">
+            <div class="story-text">
+              <p>
+                As this was my last day in <b>Taiwan</b>, I spent some time buying <i>pasalubong</i> for myself and for my family back in the <b>Philippines</b>. After that, I went to <b>Capybara Knight</b>, a charming capybara café in <b>Taipei</b>. It was such a cute and relaxing way to end my trip, especially after days of exploring the city.
+              </p>
+              <p>
+                The café gave me the chance to interact with adorable <b>capybaras</b>, along with other animals like rabbits, ducks, and a cat. The highlight was the feeding session, which also came with a drink and a capybara-shaped snack. Seeing how gentle and friendly the capybaras were made the experience even more special, and it felt like the perfect peaceful ending to my Taiwan adventure.
+              </p>
+            </div>
+            <div class="photo-grid">
+              <div class="story-photo nineteen"></div>
+              <div class="story-photo twenty"></div>
+              <div class="story-photo twentyone"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="itinerary">
+      <div class="container">
+        <div class="section-label">Things to know</div>
+        <h2 class="section-title">Things to know before visiting Taiwan</h2>
+
+        <div class="story-text">
+          <p>
+            Before sharing my itinerary and tips for places to visit and things to do, let me share a few things that you should know before you go. To be completely frank, I did not know too much about Taiwan before planning my first trip. I just knew Taiwan because of F4 and Taipei 101.
+          </p>
+          <p>
+            So, here is what I learned and think is important to know before a trip.
+          </p>
+        </div>
+
+        <div class="itinerary-list">
+          <article class="itinerary-day">
+            <div class="day-top">
+              <h3 class="day-title">⛅ Weather</h3>
+            </div>
+            <div class="day-content">
+              I went to Taiwan in <b>October</b>, and honestly, the weather was quite unpredictable. A typhoon had just passed before I even left the Philippines, so by the time I arrived, it was still hot, rainy, and a little chaotic. In my opinion, this is not the best time to visit, especially if you want a smoother and more comfortable trip.
+              <br /><br />
+              For travelers who prefer <b>less heat and lower typhoon risk</b>, I would recommend going around late <b>November to February</b>, especially for a Taipei city trip. Just keep in mind that northern Taiwan can still feel damp during winter. Still, compared to October, the weather is generally more manageable, making it a better time for sightseeing and slow travel.
+            </div>
+          </article>
+
+          <article class="itinerary-day">
+            <div class="day-top">
+              <h3 class="day-title">🥢 Food</h3>
+            </div>
+            <div class="day-content">
+              As an Asian traveling to another Asian country, I did not find it too hard to adjust to the food in Taiwan. In fact, it felt comforting in many ways, especially if you already enjoy <b>Chinese or Taiwanese cuisine</b>. If you love flavors like <b>soy sauce, pork, noodles, rice meals, and dumplings</b>, then Taiwan will definitely not disappoint.
+              <br /><br />
+              One thing I really loved was how easy it was to enjoy good food even on a budget. From <b>7-Eleven</b> meals to local restaurants and night market snacks, there was always something tasty to try. I found myself enjoying simple meals like <b>onigiri</b>, dumplings, and warm rice dishes while walking around the city. Even though not every famous dish matched my taste, the overall food experience in Taiwan was still one of the highlights of my trip. Just be prepared because some restaurants do not have English-translated menus.
+            </div>
+          </article>
+
+          <article class="itinerary-day">
+            <div class="day-top">
+              <h3 class="day-title">💸 Bring Cash</h3>
+            </div>
+            <div class="day-content">
+              One tip I would really recommend is to <b>bring cash in Taiwan</b>, especially for smaller purchases during the day. Major credit cards are accepted in many tourist-oriented businesses and larger establishments, but having <b>New Taiwan Dollars</b> with you makes the trip much easier.
+            </div>
+          </article>
+
+          <article class="itinerary-day">
+            <div class="day-top">
+              <h3 class="day-title">♨️ Hot Springs</h3>
+            </div>
+            <div class="day-content">
+              Hot springs in <b>Taiwan</b> are a must-try, especially because of the island’s volcanic geology. I was still in awe when I visited Xin Beitou and experienced both a <b>private hot spring</b> and a <b>public hot spring</b> for the first time. It felt so relaxing and unique, and it easily became one of the most memorable parts of my trip.
+              <br /><br />
+              What I also found interesting is that, unlike in Japan, you can still enjoy many hot springs in Taiwan even if you have <b>tattoos</b>. That makes the experience feel more accessible and less intimidating for travelers who might usually worry about that.
+            </div>
+          </article>
+
+          <article class="itinerary-day">
+            <div class="day-top">
+              <h3 class="day-title">🛕 Temples</h3>
+            </div>
+            <div class="day-content">
+              Temples in Taiwan are not just beautiful places to visit, they are deeply part of everyday life. For travelers, visiting a temple in Taiwan is not only about architecture, but also about understanding the country’s beliefs and traditions. A good example is <b>Longshan Temple</b> in Taipei.
+            </div>
+          </article>
+
+          <article class="itinerary-day">
+            <div class="day-top">
+              <h3 class="day-title">💁‍♀️ No tipping</h3>
+            </div>
+            <div class="day-content">
+              One thing I found convenient in Taiwan is that there is generally <b>no strong tipping culture</b>, so you do not have to worry about adding extra money after every meal or service. In many hotels and restaurants, a <b>10% service charge</b> is already included in the bill, which makes things simpler for travelers.
+              <br /><br />
+              For me, this made traveling around Taiwan feel more relaxed and budget-friendly. I could just enjoy the food, cafés, and local experiences without overthinking tips, which is especially helpful when you are traveling solo and trying to keep things simple.
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="dos-donts">
+      <div class="container">
+        <div class="section-label">What to do and avoid</div>
+        <h2 class="section-title">Taiwan dos &amp; don’ts for solo travelers</h2>
+
+        <div class="tips-grid">
+          <div class="tip-card">
+            <h3>Do</h3>
+            <div class="tip-list">
+              <div>Use the metro often. It makes getting around Taipei easy and less stressful.</div>
+              <div>Carry cash for small food stalls, markets, and simpler local spots.</div>
+              <div>Stay flexible. Some of your best moments will happen when plans change.</div>
+              <div>Bring an umbrella or light rain jacket because weather can shift fast.</div>
+              <div>Try local food even when you do not fully know what it is yet.</div>
+            </div>
+          </div>
+
+          <div class="tip-card">
+            <h3>Don’t</h3>
+            <div class="tip-list">
+              <div>Do not overpack your days. Taiwan is better when you leave room to wander.</div>
+              <div>Do not rely only on cards everywhere. Some places still work better with cash.</div>
+              <div>Do not panic if you get a little lost. That is part of the solo travel experience.</div>
+              <div>Do not skip hostel social moments if you want to meet people naturally.</div>
+              <div>Do not treat rainy weather like a ruined day. In Taiwan it can add to the mood.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="guide-map" class="map-section">
+      <div class="container">
+        <div class="section-label">Taiwan travel guide map</div>
+        <h2 class="section-title">A map of my Taiwan trip</h2>
+        <p class="lead">
+          Here is a visual guide to the places I visited in Taiwan, from Taipei to Taichung.
+        </p>
+
+        <div class="map-shell">
+          <div id="taiwanMap"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      © 2026 lifeofconstantwonder — Veni, Vidi, Vici
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map("taiwanMap", {
+      zoomControl: true,
+      scrollWheelZoom: false
+    }).setView([24.1, 121.0], 7);
+
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+      attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+      subdomains: "abcd",
+      maxZoom: 20
+    }).addTo(map);
+
+    const places = [
+      { name: "Taoyuan", coords: [25.0797, 121.2342] },
+      { name: "Taipei", coords: [25.0330, 121.5654] },
+      { name: "Beitou", coords: [25.1324, 121.5019] },
+      { name: "Shifen / Jiufen", coords: [25.1099, 121.8450] },
+      { name: "Taichung", coords: [24.1477, 120.6736] }
+    ];
+
+    const routeCoords = places.map((place) => place.coords);
+
+    L.polyline(routeCoords, {
+      color: "#d92d20",
+      weight: 4,
+      opacity: 0.8,
+      dashArray: "8, 10"
+    }).addTo(map);
+
+    const taipeiPopup = `
+      <div class="popup-card">
+        <img src="images/taipei2.jpg" alt="Taipei">
+        <h3>Taipei</h3>
+      </div>
+    `;
+
+    places.forEach((place) => {
+      const marker = L.marker(place.coords).addTo(map);
+
+      if (place.name === "Taipei") {
+        marker
+          .bindPopup(taipeiPopup, {
+            className: "custom-popup",
+            closeButton: true
+          })
+          .openPopup();
+      } else {
+        marker.bindPopup(`<strong>${place.name}</strong>`);
+      }
+    });
+  </script>
+</body>
+</html>
